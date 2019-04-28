@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
+import { distanceInWordsToNow } from 'date-fns';
+import { Link } from 'react-router-dom';
+import { Feed, Icon, Form, Button } from 'semantic-ui-react';
+
+export const TimeAgo = ({ time }) => (
+  <time>{distanceInWordsToNow(time)} ago</time>
+);
 
 class MessageItem extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      editMode: false,
-      editText: this.props.message.text,
-    };
-  }
+  state = {
+    editMode: false,
+    editText: this.props.message.text,
+  };
 
   onToggleEditMode = () => {
     this.setState(state => ({
@@ -32,42 +35,64 @@ class MessageItem extends Component {
     const { editMode, editText } = this.state;
 
     return (
-      <li>
-        {editMode ? (
-          <input
-            type="text"
-            value={editText}
-            onChange={this.onChangeEditText}
-          />
-        ) : (
-          <span>
-            <strong>{message.userId}</strong> {message.text}
-            {message.editedAt && <span>(Edited)</span>}
-          </span>
-        )}
-
-        {authUser.uid === message.userId && (
-          <span>
+      <Feed.Event>
+        <Feed.Content>
+          <Feed.Summary>
+            <Feed.User as={Link} to={`/`}>
+              {message.userId}
+            </Feed.User>
+            <Feed.Date>
+              <TimeAgo time={message.createdAt} />
+            </Feed.Date>
+          </Feed.Summary>
+          <Feed.Extra>
             {editMode ? (
-              <span>
-                <button onClick={this.onSaveEditText}>Save</button>
-                <button onClick={this.onToggleEditMode}>Reset</button>
-              </span>
+              <Form>
+                <Form.Field>
+                  <input
+                    type="text"
+                    value={editText}
+                    onChange={this.onChangeEditText}
+                  />
+                </Form.Field>
+              </Form>
             ) : (
-              <button onClick={this.onToggleEditMode}>Edit</button>
+              <span>
+                {message.text}{' '}
+                {message.editedAt && <span>(Edited)</span>}
+              </span>
             )}
-
-            {!editMode && (
-              <button
-                type="button"
-                onClick={() => onRemoveMessage(message.uid)}
-              >
-                Delete
-              </button>
+          </Feed.Extra>
+          <Feed.Meta>
+            {authUser.uid === message.userId && (
+              <span>
+                {editMode ? (
+                  <span>
+                    <Button icon onClick={this.onSaveEditText}>
+                      <Icon color="green" name="save outline" />
+                    </Button>
+                    <Button icon onClick={this.onToggleEditMode}>
+                      <Icon color="blue" name="undo alternate" />
+                    </Button>
+                  </span>
+                ) : (
+                  <span>
+                    <Button icon onClick={this.onToggleEditMode}>
+                      <Icon color="blue" name="edit outline" />
+                    </Button>
+                    <Button
+                      icon
+                      onClick={() => onRemoveMessage(message.uid)}
+                    >
+                      <Icon color="red" name="trash alternate" />
+                    </Button>
+                  </span>
+                )}
+              </span>
             )}
-          </span>
-        )}
-      </li>
+          </Feed.Meta>
+        </Feed.Content>
+      </Feed.Event>
     );
   }
 }

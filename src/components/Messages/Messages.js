@@ -4,6 +4,15 @@ import { AuthUserContext } from '../Session';
 import { withFirebase } from '../Firebase';
 import MessageList from './MessageList';
 
+import {
+  Card,
+  Message,
+  Button,
+  Loader,
+  Form,
+  Icon,
+} from 'semantic-ui-react';
+
 class Messages extends Component {
   constructor(props) {
     super(props);
@@ -91,39 +100,56 @@ class Messages extends Component {
     return (
       <AuthUserContext.Consumer>
         {authUser => (
-          <div>
-            {!loading && messages && (
-              <button type="button" onClick={this.onNextPage}>
-                More
-              </button>
-            )}
+          <Card fluid={true}>
+            <Card.Content>
+              <Card.Description>
+                {loading && <Loader active inline="centered" />}
 
-            {loading && <div>Loading ...</div>}
+                {!loading && messages && (
+                  <Button
+                    size="small"
+                    positive
+                    type="button"
+                    onClick={this.onNextPage}
+                  >
+                    Load Older Messages
+                  </Button>
+                )}
 
-            {messages && (
-              <MessageList
-                authUser={authUser}
-                messages={messages}
-                onEditMessage={this.onEditMessage}
-                onRemoveMessage={this.onRemoveMessage}
-              />
-            )}
+                {messages && (
+                  <MessageList
+                    authUser={authUser}
+                    messages={messages}
+                    onEditMessage={this.onEditMessage}
+                    onRemoveMessage={this.onRemoveMessage}
+                  />
+                )}
 
-            {!messages && <div>There are no messages ...</div>}
+                {!loading && !messages && (
+                  <Message info>
+                    <p>There are no messages ...</p>
+                  </Message>
+                )}
 
-            <form
-              onSubmit={event =>
-                this.onCreateMessage(event, authUser)
-              }
-            >
-              <input
-                type="text"
-                value={text}
-                onChange={this.onChangeText}
-              />
-              <button type="submit">Send</button>
-            </form>
-          </div>
+                {!loading && (
+                  <Form
+                    onSubmit={event =>
+                      this.onCreateMessage(event, authUser)
+                    }
+                  >
+                    <Form.TextArea
+                      value={text}
+                      onChange={this.onChangeText}
+                      placeholder="Enter your message here..."
+                    />
+                    <Button primary type="submit">
+                      Send <Icon name="send" />
+                    </Button>
+                  </Form>
+                )}
+              </Card.Description>
+            </Card.Content>
+          </Card>
         )}
       </AuthUserContext.Consumer>
     );
