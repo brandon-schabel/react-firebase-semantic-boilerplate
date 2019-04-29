@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 
@@ -102,19 +102,15 @@ const SignInFormBase = ({ firebase, history }) => {
   );
 };
 
-class SignInGoogleBase extends Component {
-  constructor(props) {
-    super(props);
+const SignInGoogleBase = ({ firebase, history }) => {
+  const [error, setError] = useState(null);
 
-    this.state = { error: null };
-  }
-
-  onSubmit = event => {
-    this.props.firebase
+  const onSubmit = event => {
+    firebase
       .doSignInWithGoogle()
       .then(socialAuthUser => {
         // Create a user in your Firebase Realtime Database too
-        return this.props.firebase.user(socialAuthUser.user.uid).set(
+        return firebase.user(socialAuthUser.user.uid).set(
           {
             username: socialAuthUser.user.displayName,
             email: socialAuthUser.user.email,
@@ -124,52 +120,44 @@ class SignInGoogleBase extends Component {
         );
       })
       .then(() => {
-        this.setState({ error: null });
-        this.props.history.push(ROUTES.HOME);
+        setError(null);
+        history.push(ROUTES.HOME);
       })
       .catch(error => {
         if (error.code === ERROR_CODE_ACCOUNT_EXISTS) {
           error.message = ERROR_MSG_ACCOUNT_EXISTS;
         }
 
-        this.setState({ error });
+        setError(error);
       });
 
     event.preventDefault();
   };
 
-  render() {
-    const { error } = this.state;
+  return (
+    <form onSubmit={onSubmit} className="inline">
+      <Button color="google plus" type="submit">
+        <Icon name="google" /> Google
+      </Button>
 
-    return (
-      <form onSubmit={this.onSubmit} className="inline">
-        <Button color="google plus" type="submit">
-          <Icon name="google" /> Google
-        </Button>
+      {error && (
+        <Message negative>
+          <p>{error.message}</p>
+        </Message>
+      )}
+    </form>
+  );
+};
 
-        {error && (
-          <Message negative>
-            <p>{error.message}</p>
-          </Message>
-        )}
-      </form>
-    );
-  }
-}
+const SignInFacebookBase = ({ firebase, history }) => {
+  const [error, setError] = useState(null);
 
-class SignInFacebookBase extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = { error: null };
-  }
-
-  onSubmit = event => {
-    this.props.firebase
+  const onSubmit = event => {
+    firebase
       .doSignInWithFacebook()
       .then(socialAuthUser => {
         // Create a user in your Firebase Realtime Database too
-        return this.props.firebase.user(socialAuthUser.user.uid).set(
+        return firebase.user(socialAuthUser.user.uid).set(
           {
             username: socialAuthUser.additionalUserInfo.profile.name,
             email: socialAuthUser.additionalUserInfo.profile.email,
@@ -179,52 +167,44 @@ class SignInFacebookBase extends Component {
         );
       })
       .then(() => {
-        this.setState({ error: null });
-        this.props.history.push(ROUTES.HOME);
+        setError(null);
+        history.push(ROUTES.HOME);
       })
       .catch(error => {
         if (error.code === ERROR_CODE_ACCOUNT_EXISTS) {
           error.message = ERROR_MSG_ACCOUNT_EXISTS;
         }
 
-        this.setState({ error });
+        setError(error);
       });
 
     event.preventDefault();
   };
 
-  render() {
-    const { error } = this.state;
+  return (
+    <form onSubmit={onSubmit} className="inline">
+      <Button color="facebook" type="submit">
+        <Icon name="facebook" /> Facebook
+      </Button>
 
-    return (
-      <form onSubmit={this.onSubmit} className="inline">
-        <Button color="facebook" type="submit">
-          <Icon name="facebook" /> Facebook
-        </Button>
+      {error && (
+        <Message negative>
+          <p>{error.message}</p>
+        </Message>
+      )}
+    </form>
+  );
+};
 
-        {error && (
-          <Message negative>
-            <p>{error.message}</p>
-          </Message>
-        )}
-      </form>
-    );
-  }
-}
+const SignInTwitterBase = ({ firebase, history }) => {
+  const [error, setError] = useState(null);
 
-class SignInTwitterBase extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = { error: null };
-  }
-
-  onSubmit = event => {
-    this.props.firebase
+  const onSubmit = event => {
+    firebase
       .doSignInWithTwitter()
       .then(socialAuthUser => {
         // Create a user in your Firebase Realtime Database too
-        return this.props.firebase.user(socialAuthUser.user.uid).set(
+        return firebase.user(socialAuthUser.user.uid).set(
           {
             username: socialAuthUser.additionalUserInfo.profile.name,
             email: socialAuthUser.additionalUserInfo.profile.email,
@@ -234,38 +214,34 @@ class SignInTwitterBase extends Component {
         );
       })
       .then(() => {
-        this.setState({ error: null });
-        this.props.history.push(ROUTES.HOME);
+        setError(null);
+        history.push(ROUTES.HOME);
       })
       .catch(error => {
         if (error.code === ERROR_CODE_ACCOUNT_EXISTS) {
           error.message = ERROR_MSG_ACCOUNT_EXISTS;
         }
 
-        this.setState({ error });
+        setError(error);
       });
 
     event.preventDefault();
   };
 
-  render() {
-    const { error } = this.state;
+  return (
+    <form onSubmit={onSubmit} className="inline">
+      <Button color="twitter" type="submit">
+        <Icon name="twitter" /> Twitter
+      </Button>
 
-    return (
-      <form onSubmit={this.onSubmit} className="inline">
-        <Button color="twitter" type="submit">
-          <Icon name="twitter" /> Twitter
-        </Button>
-
-        {error && (
-          <Message negative>
-            <p>{error.message}</p>
-          </Message>
-        )}
-      </form>
-    );
-  }
-}
+      {error && (
+        <Message negative>
+          <p>{error.message}</p>
+        </Message>
+      )}
+    </form>
+  );
+};
 
 const SignInForm = compose(
   withRouter,
