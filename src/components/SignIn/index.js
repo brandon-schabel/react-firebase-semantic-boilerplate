@@ -61,9 +61,6 @@ const SignInFormBase = ({ firebase, history }) => {
     event.preventDefault();
   };
 
-  const emailInput = e => setEmail(e.target.value);
-  const passInput = e => setPassword(e.target.value);
-
   return (
     <div>
       {error && (
@@ -77,7 +74,7 @@ const SignInFormBase = ({ firebase, history }) => {
           <input
             name="email"
             value={email}
-            onChange={emailInput}
+            onChange={e => setEmail(e.target.value)}
             type="text"
             placeholder="Email Address"
           />
@@ -87,7 +84,7 @@ const SignInFormBase = ({ firebase, history }) => {
           <input
             name="password"
             value={password}
-            onChange={passInput}
+            onChange={e => setPassword(e.target.value)}
             type="password"
             placeholder="Password"
           />

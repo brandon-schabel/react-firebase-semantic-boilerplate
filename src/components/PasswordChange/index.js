@@ -1,78 +1,65 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 
 import { withFirebase } from '../Firebase';
 
 import { Form, Message, Button } from 'semantic-ui-react';
 
-const INITIAL_STATE = {
-  passwordOne: '',
-  passwordTwo: '',
-  error: null,
-};
+const PasswordChangeForm = ({ firebase }) => {
+  const [passOne, setPassOne] = useState('');
+  const [passTwo, setPassTwo] = useState('');
+  const [error, setError] = useState('');
 
-class PasswordChangeForm extends Component {
-  state = { ...INITIAL_STATE };
-
-  onSubmit = event => {
-    const { passwordOne } = this.state;
-
-    this.props.firebase
-      .doPasswordUpdate(passwordOne)
+  const onSubmit = event => {
+    firebase
+      .doPasswordUpdate(passOne)
       .then(() => {
-        this.setState({ ...INITIAL_STATE });
+        setPassOne('');
+        setPassTwo('');
+        setError(null);
       })
       .catch(error => {
-        this.setState({ error });
+        setError(error);
       });
 
     event.preventDefault();
   };
 
-  onChange = event => {
-    this.setState({ [event.target.name]: event.target.value });
-  };
+  const isInvalid = passOne !== passTwo || passOne === '';
 
-  render() {
-    const { passwordOne, passwordTwo, error } = this.state;
-
-    const isInvalid =
-      passwordOne !== passwordTwo || passwordOne === '';
-
-    return (
-      <Form onSubmit={this.onSubmit}>
-        {error && (
-          <Message negative>
-            <p>{error.message}</p>
-          </Message>
-        )}
-        <Form.Group widths="equal">
-          <Form.Field>
-            <label>Old Password</label>
-            <input
-              name="passwordOne"
-              value={passwordOne}
-              onChange={this.onChange}
-              type="password"
-              placeholder="New Password"
-            />
-          </Form.Field>
-          <Form.Field>
-            <label>New Password</label>
-            <input
-              name="passwordTwo"
-              value={passwordTwo}
-              onChange={this.onChange}
-              type="password"
-              placeholder="Confirm New Password"
-            />
-          </Form.Field>
-        </Form.Group>
-        <Button primary disabled={isInvalid} type="submit">
-          Reset My Password
-        </Button>
-      </Form>
-    );
-  }
-}
+  return (
+    <Form onSubmit={onSubmit}>
+      {error && (
+        <Message negative>
+          <p>{error.message}</p>
+        </Message>
+      )}
+      <Form.Group widths="equal">
+        <Form.Field>
+          <label>Old Password</label>
+          <input
+            name="passwordOne"
+            value={passOne}
+            onChange={(e) => setPassOne(e.target.value) }
+            type="password"
+            placeholder="New Password"
+          />
+        </Form.Field>
+        <Form.Field>
+          <label>New Password</label>
+          <input
+            name="passTwo"
+            value={passTwo}
+            onChange={(e) => setPassTwo(e.target.value)}
+            type="password"
+            placeholder="Confirm New Password"
+          />
+        </Form.Field>
+      </Form.Group>
+      <Button primary disabled={isInvalid} type="submit">
+        Reset My Password
+      </Button>
+    </Form>
+  );
+};
 
 export default withFirebase(PasswordChangeForm);

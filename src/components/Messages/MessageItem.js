@@ -28,10 +28,6 @@ export const MessageItem = ({
     setEditMode(false);
   };
 
-  const CallBindMethod = (value) => {
-    console.log(value)
-  }
-
   return (
     <Feed.Event>
       <Feed.Content>

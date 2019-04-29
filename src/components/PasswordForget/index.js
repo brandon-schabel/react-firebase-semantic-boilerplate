@@ -30,8 +30,6 @@ const PasswordForgetFormBase = ({ firebase }) => {
     event.preventDefault();
   };
 
-  const onChange = event => setEmail(event.target.value);
-
   return (
     <div>
       {error && (
@@ -45,7 +43,7 @@ const PasswordForgetFormBase = ({ firebase }) => {
           <input
             name="email"
             value={email}
-            onChange={onChange}
+            onChange={(e) => setEmail(e.target.value)}
             type="text"
             placeholder="Email Address"
           />
