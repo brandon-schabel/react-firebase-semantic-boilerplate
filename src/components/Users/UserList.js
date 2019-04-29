@@ -7,14 +7,10 @@ import * as ROUTES from '../../constants/routes';
 import { Header, Loader, Table, Button } from 'semantic-ui-react';
 
 class UserList extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      loading: false,
-      users: [],
-    };
-  }
+  state = {
+    loading: false,
+    users: [],
+  };
 
   componentDidMount() {
     this.setState({ loading: true });

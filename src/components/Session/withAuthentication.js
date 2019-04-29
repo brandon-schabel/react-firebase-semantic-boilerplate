@@ -5,13 +5,9 @@ import { withFirebase } from '../Firebase';
 
 const withAuthentication = Component => {
   class WithAuthentication extends React.Component {
-    constructor(props) {
-      super(props);
-
-      this.state = {
-        authUser: JSON.parse(localStorage.getItem('authUser')),
-      };
-    }
+    state = {
+      authUser: JSON.parse(localStorage.getItem('authUser')),
+    };
 
     componentDidMount() {
       this.listener = this.props.firebase.onAuthUserListener(

@@ -5,15 +5,11 @@ import { withFirebase } from '../Firebase';
 import { Card, Loader, Button } from 'semantic-ui-react';
 
 class UserItem extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      loading: false,
-      user: null,
-      ...props.location.state,
-    };
-  }
+  state = {
+    loading: false,
+    user: null,
+    ...this.props.location.state,
+  };
 
   componentDidMount() {
     if (this.state.user) {

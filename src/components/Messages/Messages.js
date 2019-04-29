@@ -14,16 +14,12 @@ import {
 } from 'semantic-ui-react';
 
 class Messages extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      text: '',
-      loading: false,
-      messages: [],
-      limit: 5,
-    };
-  }
+  state = {
+    text: '',
+    loading: false,
+    messages: [],
+    limit: 5,
+  };
 
   componentDidMount() {
     this.onListenForMessages();

@@ -43,14 +43,10 @@ const AccountPage = () => (
 );
 
 class LoginManagementBase extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      activeSignInMethods: [],
-      error: null,
-    };
-  }
+  state = {
+    activeSignInMethods: [],
+    error: null,
+  };
 
   componentDidMount() {
     this.fetchSignInMethods();

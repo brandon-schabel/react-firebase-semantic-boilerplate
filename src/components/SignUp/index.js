@@ -40,11 +40,7 @@ const ERROR_MSG_ACCOUNT_EXISTS = `
 `;
 
 class SignUpFormBase extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = { ...INITIAL_STATE };
-  }
+  state = { ...INITIAL_STATE };
 
   onSubmit = event => {
     const { username, email, passwordOne, isAdmin } = this.state;
