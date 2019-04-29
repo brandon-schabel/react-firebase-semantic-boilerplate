@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 
@@ -32,6 +32,12 @@ const SignInPage = () => (
   </Grid>
 );
 
+const INITIAL_STATE = {
+  email: '',
+  password: '',
+  error: null,
+};
+
 const ERROR_CODE_ACCOUNT_EXISTS =
   'auth/account-exists-with-different-credential';
 
@@ -42,65 +48,72 @@ const ERROR_MSG_ACCOUNT_EXISTS = `
   your personal account page.
 `;
 
-const SignInFormBase = ({ firebase, history }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+class SignInFormBase extends Component {
+  state = { ...INITIAL_STATE };
 
-  const isInvalid = password === '' || email === '';
+  onSubmit = event => {
+    const { email, password } = this.state;
 
-  const onSubmit = event => {
-    firebase
+    this.props.firebase
       .doSignInWithEmailAndPassword(email, password)
       .then(() => {
-        setEmail('');
-        setPassword('');
-        history.push(ROUTES.HOME);
+        this.setState({ ...INITIAL_STATE });
+        this.props.history.push(ROUTES.HOME);
       })
-      .catch(error => setError(error));
+      .catch(error => {
+        this.setState({ error });
+      });
+
     event.preventDefault();
   };
 
-  const emailInput = e => setEmail(e.target.value);
-  const passInput = e => setPassword(e.target.value);
+  onChange = event => {
+    this.setState({ [event.target.name]: event.target.value });
+  };
 
-  return (
-    <div>
-      {error && (
-        <Message negative>
-          <p>{error.message}</p>
-        </Message>
-      )}
-      <Form onSubmit={onSubmit}>
-        <Form.Field>
-          <label>Email</label>
-          <input
-            name="email"
-            value={email}
-            onChange={emailInput}
-            type="text"
-            placeholder="Email Address"
-          />
-        </Form.Field>
-        <Form.Field>
-          <label>Password</label>
-          <input
-            name="password"
-            value={password}
-            onChange={passInput}
-            type="password"
-            placeholder="Password"
-          />
-        </Form.Field>
-        <Button primary disabled={isInvalid} type="submit">
-          Submit
-        </Button>
-        <PasswordForgetLink />
-        <Divider horizontal>Or sign in with</Divider>
-      </Form>
-    </div>
-  );
-};
+  render() {
+    const { email, password, error } = this.state;
+
+    const isInvalid = password === '' || email === '';
+
+    return (
+      <div>
+        {error && (
+          <Message negative>
+            <p>{error.message}</p>
+          </Message>
+        )}
+        <Form onSubmit={this.onSubmit}>
+          <Form.Field>
+            <label>Email</label>
+            <input
+              name="email"
+              value={email}
+              onChange={this.onChange}
+              type="text"
+              placeholder="Email Address"
+            />
+          </Form.Field>
+          <Form.Field>
+            <label>Password</label>
+            <input
+              name="password"
+              value={password}
+              onChange={this.onChange}
+              type="password"
+              placeholder="Password"
+            />
+          </Form.Field>
+          <Button primary disabled={isInvalid} type="submit">
+            Submit
+          </Button>
+          <PasswordForgetLink />
+          <Divider horizontal>Or sign in with</Divider>
+        </Form>
+      </div>
+    );
+  }
+}
 
 class SignInGoogleBase extends Component {
   constructor(props) {
