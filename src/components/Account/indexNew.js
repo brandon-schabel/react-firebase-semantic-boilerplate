@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { compose } from 'recompose';
 
 import {
@@ -42,56 +42,50 @@ const AccountPage = () => (
   </AuthUserContext.Consumer>
 );
 
-class LoginManagementBase extends Component {
-  state = {
-    activeSignInMethods: [],
-    error: null,
+const LoginManagementBase = ({ firebase, authUser}) => {
+  const [activeSignInMethods, setActiveSignInMethods] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => fetchSignInMethods, []);
+
+  const fetchSignInMethods = () => {
+    firebase.auth
+      .fetchSignInMethodsForEmail(authUser.email)
+      .then(activeSignInMethods => {
+        setActiveSignInMethods(activeSignInMethods);
+        setError(null);
+      })
+      .catch(error => setError(error));
   };
 
-  componentDidMount() {
-    this.fetchSignInMethods();
-  }
-
-  fetchSignInMethods = () => {
-    this.props.firebase.auth
-      .fetchSignInMethodsForEmail(this.props.authUser.email)
-      .then(activeSignInMethods =>
-        this.setState({ activeSignInMethods, error: null }),
-      )
-      .catch(error => this.setState({ error }));
+  const onSocialLoginLink = provider => {
+  firebase.auth.currentUser
+      .linkWithPopup(firebase[provider])
+      .then(fetchSignInMethods)
+      .catch(error => setError(error));
   };
 
-  onSocialLoginLink = provider => {
-    this.props.firebase.auth.currentUser
-      .linkWithPopup(this.props.firebase[provider])
-      .then(this.fetchSignInMethods)
-      .catch(error => this.setState({ error }));
-  };
-
-  onDefaultLoginLink = password => {
-    const credential = this.props.firebase.emailAuthProvider.credential(
-      this.props.authUser.email,
+  const onDefaultLoginLink = password => {
+    const credential = firebase.emailAuthProvider.credential(
+      authUser.email,
       password,
     );
 
-    this.props.firebase.auth.currentUser
+    firebase.auth.currentUser
       .linkAndRetrieveDataWithCredential(credential)
-      .then(this.fetchSignInMethods)
-      .catch(error => this.setState({ error }));
+      .then(fetchSignInMethods)
+      .catch(error => setError(error));
   };
 
-  onUnlink = providerId => {
-    this.props.firebase.auth.currentUser
+  const onUnlink = providerId => {
+    firebase.auth.currentUser
       .unlink(providerId)
-      .then(this.fetchSignInMethods)
-      .catch(error => this.setState({ error }));
+      .then(fetchSignInMethods)
+      .catch(error => setError(error));
   };
 
-  render() {
-    const { activeSignInMethods, error } = this.state;
-
-    return (
-      <div>
+  return(
+    <div>
         Sign In Methods:
         <ul>
           {SIGN_IN_METHODS.map(signInMethod => {
@@ -107,16 +101,16 @@ class LoginManagementBase extends Component {
                     onlyOneLeft={onlyOneLeft}
                     isEnabled={isEnabled}
                     signInMethod={signInMethod}
-                    onLink={this.onDefaultLoginLink}
-                    onUnlink={this.onUnlink}
+                    onLink={onDefaultLoginLink}
+                    onUnlink={onUnlink}
                   />
                 ) : (
                   <SocialLoginToggle
                     onlyOneLeft={onlyOneLeft}
                     isEnabled={isEnabled}
                     signInMethod={signInMethod}
-                    onLink={this.onSocialLoginLink}
-                    onUnlink={this.onUnlink}
+                    onLink={onSocialLoginLink}
+                    onUnlink={onUnlink}
                   />
                 )}
               </li>
@@ -125,9 +119,8 @@ class LoginManagementBase extends Component {
         </ul>
         {error && error.message}
       </div>
-    );
-  }
-}
+  )
+};
 
 const SocialLoginToggle = ({
   onlyOneLeft,
